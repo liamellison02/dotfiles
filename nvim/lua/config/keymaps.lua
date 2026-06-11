@@ -8,6 +8,10 @@ map("n", "<leader>aa", "<cmd>CodeCompanionChat<cr>", { desc = "AI Chat" })
 map("v", "<leader>aa", "<cmd>CodeCompanionChat<cr>", { desc = "AI Chat (selection)" })
 map("v", "<leader>ae", "<cmd>CodeCompanion<cr>", { desc = "AI Inline Edit" })
 
+-- Insert mode: word/line deletion with Mac modifier keys
+map("i", "<M-BS>", "<C-w>", { desc = "Delete previous word" })
+map("i", "<D-BS>", "<C-u>", { desc = "Delete to beginning of line" })
+
 map("n", "<leader>ut", function()
   vim.cmd("Telescope colorscheme")
 end, { desc = "Switch colorscheme" })
