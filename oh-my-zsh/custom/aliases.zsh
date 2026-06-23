@@ -32,7 +32,7 @@ alias dsa="cd ~/git/dsa-solutions/"
 ################################
 
 alias dsa="cd ~/git/dsa-solutions/"
-alias lc='sed -n 30,63p ~/git/dsa-solutions/templates/lc.cpp | pbcopy'
+alias lc='sed -n 30,69p ~/git/dsa-solutions/templates/lc.cpp | pbcopy'
 alias cpp="clang++ -std=c++20 -O2"
 
 
