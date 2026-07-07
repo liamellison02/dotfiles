@@ -1,1 +1,8 @@
 .DS_Store
+
+# powerlevel10k is cloned into the (symlinked) oh-my-zsh custom dir by setup.sh;
+# it's a third-party checkout, not part of these dotfiles.
+oh-my-zsh/custom/themes/powerlevel10k/
+
+# machine-local Claude Code overrides (per-machine permissions, never synced)
+claude/settings.local.json

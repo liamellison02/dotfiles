@@ -20,6 +20,24 @@ clone this repo to `~/git/dotfiles` (symlink commands below assume this path):
 git clone https://github.com/liamellison02/dotfiles ~/git/dotfiles
 ```
 
+### automated (recommended)
+
+`scripts/setup.sh` takes a brand-new macOS machine from nothing to fully dev-ready: it
+installs homebrew, the CLI tools, oh-my-zsh + powerlevel10k, and Claude Code, then creates
+every symlink below, points iterm2 at the repo, and schedules a daily auto-sync (see
+[auto-sync](#auto-sync)). it's idempotent - safe to re-run, and it backs up any existing
+real files before replacing them with symlinks.
+
+```sh
+# git is needed to clone; install Xcode Command Line Tools first if you don't have it
+xcode-select --install
+git clone https://github.com/liamellison02/dotfiles ~/git/dotfiles
+~/git/dotfiles/scripts/setup.sh
+```
+
+then open a new terminal (or `exec zsh`). the per-tool steps below document what the
+script automates, in case you'd rather set things up by hand.
+
 ---
 
 ## tools
@@ -151,6 +169,28 @@ ln -sf ~/git/dotfiles/neofetch/config.conf ~/.config/neofetch/config.conf
 
 ---
 
+### claude code
+
+```sh
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+`~/.claude/` is mostly local state (sessions, cache, telemetry) that shouldn't be synced. only the portable config files are symlinked in - `settings.local.json` stays machine-local and untracked, since it holds per-machine permission rules.
+
+```sh
+ln -sf ~/git/dotfiles/claude/settings.json ~/.claude/settings.json
+ln -sf ~/git/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
+ln -sf ~/git/dotfiles/claude/keybindings.json ~/.claude/keybindings.json
+ln -sfn ~/git/dotfiles/claude/hooks ~/.claude/hooks
+```
+
+the `hooks/` dir includes two `Stop`/`Notification` sound hooks and their `.mp3` files
+(bundled in `claude/hooks/sounds/`), so they travel with the repo - no re-downloading.
+the hook scripts resolve their own location, so the sounds play regardless of where the
+repo is cloned. `afplay` (macOS built-in) is used to play them.
+
+---
+
 ## symlink map
 
 | dotfile location | repo path |
@@ -163,3 +203,27 @@ ln -sf ~/git/dotfiles/neofetch/config.conf ~/.config/neofetch/config.conf
 | `~/.config/ghostty/themes` | `ghostty/themes/` |
 | `~/.config/neofetch/config.conf` | `neofetch/config.conf` |
 | iterm2 preferences dir | `iterm2/` (via iterm2 settings, not a symlink) |
+| `~/.claude/settings.json` | `claude/settings.json` |
+| `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
+| `~/.claude/keybindings.json` | `claude/keybindings.json` |
+| `~/.claude/hooks` | `claude/hooks/` (incl. bundled `sounds/`) |
+
+---
+
+## auto-sync
+
+`scripts/setup.sh` installs a macOS **LaunchAgent** (`com.liamellison.dotfiles-sync`) that
+runs `scripts/sync.sh` once a day. `sync.sh` stages everything, commits with a dated
+message, and pushes - but only when there's something to commit, so it never makes empty
+commits. if the Mac is asleep at the scheduled time, launchd runs the missed job on next
+wake (cron would just skip it).
+
+- **schedule:** daily at 13:00 local. change `SYNC_HOUR` / `SYNC_MINUTE` near the bottom
+  of `scripts/setup.sh` and re-run it to reschedule.
+- **logs:** `~/.local/state/dotfiles-sync.log` (plus `dotfiles-sync.{out,err}.log`).
+- **run it now:** `~/git/dotfiles/scripts/sync.sh`
+- **credentials:** the push runs headlessly, so it can't prompt for a password. do one
+  manual `git -C ~/git/dotfiles push` first to cache the credential in the macOS keychain,
+  or switch the remote to SSH (`git remote set-url origin git@github.com:...`).
+- **disable:** `launchctl unload ~/Library/LaunchAgents/com.liamellison.dotfiles-sync.plist`
+  (then delete the plist to make it permanent).
