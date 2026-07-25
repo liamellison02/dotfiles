@@ -10,12 +10,32 @@ local function get_system_background()
   return "light"
 end
 
+-- The colorscheme to use for each macOS appearance. Edit these to re-pair them;
+-- `zenburned` comes from zenbones.nvim, `rose-pine` renders as `dawn` in light
+-- via its `variant = "auto"` setting below.
+local THEMES = {
+  light = "rose-pine",
+  dark = "zenburned",
+}
+
+-- The last appearance macOS reported. We react to the *system* changing, not to
+-- `vim.o.background` merely disagreeing with it: picking a dark theme while macOS
+-- is in light mode is a legitimate choice, but it reads as a mismatch and used to
+-- get stomped on the next tick.
+local last_system_background = get_system_background()
+
+local function apply_theme(bg)
+  vim.o.background = bg
+  pcall(vim.cmd.colorscheme, THEMES[bg])
+end
+
 local function sync_theme_with_system()
   local bg = get_system_background()
-  if vim.o.background ~= bg then
-    vim.o.background = bg
-    vim.cmd.colorscheme("rose-pine")
+  if bg == last_system_background then
+    return
   end
+  last_system_background = bg
+  apply_theme(bg)
 end
 
 -- Neovim's default 'guicursor' only sends terminal cursor-color escape
@@ -100,6 +120,12 @@ return {
     name = "rose-pine",
     lazy = false,
     priority = 1000,
+    -- zenburned (the dark-mode theme) ships with zenbones.nvim. Declared as a
+    -- dependency rather than a sibling spec so lazy.nvim guarantees it is loaded
+    -- before the config below applies a colorscheme at startup.
+    dependencies = {
+      { "zenbones-theme/zenbones.nvim", dependencies = { "rktjmp/lush.nvim" } },
+    },
     config = function()
       require("rose-pine").setup({
         variant = "auto", -- follow vim.o.background; "dawn" would pin it regardless of background
@@ -107,8 +133,8 @@ return {
         styles = { bold = true, italic = false, transparency = false },
       })
 
-      vim.o.background = get_system_background()
-      vim.cmd.colorscheme("rose-pine")
+      last_system_background = get_system_background()
+      apply_theme(last_system_background)
 
       -- Neovim has no event for "system appearance changed", so poll for it
       -- and also recheck whenever the terminal regains focus.
@@ -126,11 +152,6 @@ return {
   { "ellisonleao/gruvbox.nvim", lazy = true },
   { "talha-akram/noctis.nvim", lazy = true },
 
-  {
-    "zenbones-theme/zenbones.nvim",
-    dependencies = { "rktjmp/lush.nvim" },
-    lazy = true,
-  },
   { "ThorstenRhau/token", lazy = true },
   { "jnurmine/zenburn", lazy = true },
   { "fdemb/dusk.nvim", lazy = true, opts = {} },
