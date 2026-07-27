@@ -11,10 +11,10 @@ local function get_system_background()
 end
 
 -- The colorscheme to use for each macOS appearance. Edit these to re-pair them;
--- `zenburned` comes from zenbones.nvim, `rose-pine` renders as `dawn` in light
--- via its `variant = "auto"` setting below.
+-- both `seoulbones` and `zenburned` come from zenbones.nvim, so no extra
+-- plugin dependency is needed to pair them.
 local THEMES = {
-  light = "rose-pine",
+  light = "seoulbones",
   dark = "zenburned",
 }
 
