@@ -14,7 +14,7 @@ end
 -- both `seoulbones` and `zenburned` come from zenbones.nvim, so no extra
 -- plugin dependency is needed to pair them.
 local THEMES = {
-  light = "randombones_light",
+  light = "rosebones",
   dark = "zenburned",
 }
 
