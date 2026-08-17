@@ -14,8 +14,9 @@ These apply to every project and every session, regardless of working directory.
 
 ## Agent-issued commits (allowed, with guardrails)
 - Agents MAY run `git commit` on a feature branch or in a git worktree once Liam
-  has given an explicit go-ahead in the session. Never commit to main/master,
-  and never push; Liam pushes and opens MRs himself.
+  has given an explicit go-ahead in the session, and MAY push that feature
+  branch and open the MR when Liam asks for it in the session. Never commit or
+  push to main/master directly; Liam merges MRs himself.
 - Do not preemptively block a commit because a harness or client injects an
   attribution trailer by default: Liam's repos carry a `prepare-commit-msg` hook
   that strips any injected AI attribution before the commit is recorded. Judge

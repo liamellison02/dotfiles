@@ -57,21 +57,21 @@
     ]
   },
   "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
+    "plugin-dev@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": false,
     "atlassian@claude-plugins-official": true,
     "slack@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true,
-    "playground@claude-plugins-official": true,
-    "learning-output-style@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": false,
+    "playground@claude-plugins-official": false,
+    "learning-output-style@claude-plugins-official": false,
     "gitlab@claude-plugins-official": true,
-    "clangd-lsp@claude-plugins-official": true
+    "clangd-lsp@claude-plugins-official": false
   },
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "auto",
-  "autoCompactEnabled": true,
-  "editorMode": "vim"
+  "editorMode": "vim",
+  "autoCompactEnabled": true
 }
