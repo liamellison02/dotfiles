@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/block-coauthor-commit.sh\"",
+            "statusMessage": "Checking commit authorship policy"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/play-stop-sound.sh\"",
+            "statusMessage": "Playing completion sound"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/play-notification-sound.sh\"",
+            "statusMessage": "Playing input-needed sound"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": false,
+    "plugin-dev@claude-plugins-official": false,
+    "context7@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": false,
+    "atlassian@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": false,
+    "playground@claude-plugins-official": false,
+    "learning-output-style@claude-plugins-official": false,
+    "gitlab@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": false
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "theme": "auto",
+  "editorMode": "vim",
+  "autoCompactEnabled": true
+}
