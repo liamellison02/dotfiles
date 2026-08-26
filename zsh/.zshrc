@@ -10,18 +10,6 @@ fi
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(
-	git
-	zsh-autosuggestions
-	zsh-syntax-highlighting
-	web-search
-)
-
-source $ZSH/oh-my-zsh.sh
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-export PATH="$HOME/bin:$PATH"
-export EDITOR='nvim'
 
 
 
@@ -30,16 +18,24 @@ export EDITOR='nvim'
 ####    oh-my-zsh plugins   ####
 ####                        ####
 ################################
+# installed by scripts/setup.sh into ~/.oh-my-zsh/custom/plugins/.
+# zsh-syntax-highlighting has to stay LAST: it wraps the widgets every other
+# plugin has already registered.
 
 plugins=(
-    git
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-    web-search
+	git
+	web-search
+	zsh-autosuggestions
+	zsh-syntax-highlighting
 )
+
+source $ZSH/oh-my-zsh.sh
 
 # autojump setup (must add to plugins first ^^)
 [ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
+
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+export EDITOR='nvim'
 
 
 
@@ -51,11 +47,8 @@ plugins=(
 # (more found in oh-my-zsh/custom/aliases.zsh)
 
 sol() {
-  rg -l -U "platform:\s*$1\s*\nid:\s*$2\b" "~/git/dsa-solutions/problems"
+  rg -l -U "platform:\s*$1\s*\nid:\s*$2\b" "$HOME/git/dsa-solutions/problems"
 }
-
-
-source $ZSH/oh-my-zsh.sh
 
 
 
@@ -77,14 +70,15 @@ export prod_uri="mongodb://sikeyouthought:6769"
 ################################
 
 # pnpm
-export PNPM_HOME="~/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
 
-. "$HOME/.local/bin/env"
+# uv (only exists once uv has been installed)
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 
 # nvm
 export NVM_DIR="$HOME/.nvm"

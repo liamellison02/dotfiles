@@ -1,8 +1,11 @@
 .DS_Store
 
-# powerlevel10k is cloned into the (symlinked) oh-my-zsh custom dir by setup.sh;
-# it's a third-party checkout, not part of these dotfiles.
+# third-party checkouts cloned into the (symlinked) oh-my-zsh custom dir by setup.sh;
+# they are not part of these dotfiles.
 oh-my-zsh/custom/themes/powerlevel10k/
+oh-my-zsh/custom/plugins/
 
-# machine-local Claude Code overrides (per-machine permissions, never synced)
+# machine-local Claude Code config (per-machine plugin + permission state, never synced).
+# settings.json is seeded from claude/settings.example.json by setup.sh.
+claude/settings.json
 claude/settings.local.json

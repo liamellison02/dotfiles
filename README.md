@@ -23,10 +23,11 @@ git clone https://github.com/liamellison02/dotfiles ~/git/dotfiles
 ### automated (recommended)
 
 `scripts/setup.sh` takes a brand-new macOS machine from nothing to fully dev-ready: it
-installs homebrew, the CLI tools, oh-my-zsh + powerlevel10k, and Claude Code, then creates
-every symlink below, points iterm2 at the repo, and schedules a daily auto-sync (see
-[auto-sync](#auto-sync)). it's idempotent - safe to re-run, and it backs up any existing
-real files before replacing them with symlinks.
+installs homebrew, the CLI tools, oh-my-zsh + its plugins + powerlevel10k, and Claude Code,
+then creates every symlink below, points iterm2 at the repo, and schedules a daily
+auto-sync (see [auto-sync](#auto-sync)). it's idempotent - safe to re-run, and it backs up
+any existing real files before replacing them with symlinks. it deliberately leaves the
+login shell as macOS's own `/bin/zsh`.
 
 ```sh
 # git is needed to clone; install Xcode Command Line Tools first if you don't have it
@@ -44,7 +45,15 @@ script automates, in case you'd rather set things up by hand.
 
 ### zsh
 
-**macOS:** included by default. **linux:**
+**macOS:** already there - macOS ships zsh 5.9 at `/bin/zsh`. Do *not* `brew install zsh`;
+a Homebrew build just shadows the system one and buys you nothing. If zsh somehow isn't
+your login shell:
+
+```sh
+chsh -s /bin/zsh
+```
+
+**linux:**
 
 ```sh
 brew install zsh
@@ -73,6 +82,25 @@ the installer creates `~/.oh-my-zsh/custom/`. replace it with the repo's version
 rm -rf ~/.oh-my-zsh/custom
 ln -sf ~/git/dotfiles/oh-my-zsh/custom ~/.oh-my-zsh/custom
 ```
+
+---
+
+### zsh plugins
+
+`.zshrc` enables `zsh-autosuggestions` and `zsh-syntax-highlighting`, which aren't bundled
+with oh-my-zsh - clone them into the custom dir or every new shell prints
+`plugin '...' not found`:
+
+```sh
+git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+both are gitignored - they're third-party checkouts that happen to land inside the repo
+via the symlinked custom dir. keep `zsh-syntax-highlighting` last in the `plugins=()`
+array; it wraps the widgets every other plugin has already registered.
 
 ---
 
@@ -156,19 +184,6 @@ from that point on, iterm2 reads and writes preferences directly to `~/git/dotfi
 
 ---
 
-### neofetch
-
-```sh
-brew install neofetch
-```
-
-```sh
-mkdir -p ~/.config/neofetch
-ln -sf ~/git/dotfiles/neofetch/config.conf ~/.config/neofetch/config.conf
-```
-
----
-
 ### claude code
 
 ```sh
@@ -178,10 +193,17 @@ curl -fsSL https://claude.ai/install.sh | bash
 `~/.claude/` is mostly local state (sessions, cache, telemetry) that shouldn't be synced. only the portable config files are symlinked in - `settings.local.json` stays machine-local and untracked, since it holds per-machine permission rules.
 
 ```sh
-ln -sf ~/git/dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sf ~/git/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sf ~/git/dotfiles/claude/keybindings.json ~/.claude/keybindings.json
 ln -sfn ~/git/dotfiles/claude/hooks ~/.claude/hooks
+```
+
+`settings.json` is **copied, not symlinked** - it accumulates per-machine plugin and
+permission state, so linking it would push that into the daily auto-sync commits. seed it
+once from the tracked example (`setup.sh` does this for you) and edit your copy freely:
+
+```sh
+cp -n ~/git/dotfiles/claude/settings.example.json ~/.claude/settings.json
 ```
 
 the `hooks/` dir includes two `Stop`/`Notification` sound hooks and their `.mp3` files
@@ -198,12 +220,12 @@ repo is cloned. `afplay` (macOS built-in) is used to play them.
 | `~/.zshrc` | `zsh/.zshrc` |
 | `~/.p10k.zsh` | `zsh/.p10k.zsh` |
 | `~/.oh-my-zsh/custom` | `oh-my-zsh/custom/` |
+| `~/.oh-my-zsh/custom/plugins/` | third-party clones (gitignored) |
 | `~/.config/nvim` | `nvim/` |
 | `~/.config/ghostty/config` | `ghostty/config` |
 | `~/.config/ghostty/themes` | `ghostty/themes/` |
-| `~/.config/neofetch/config.conf` | `neofetch/config.conf` |
 | iterm2 preferences dir | `iterm2/` (via iterm2 settings, not a symlink) |
-| `~/.claude/settings.json` | `claude/settings.json` |
+| `~/.claude/settings.json` | `claude/settings.example.json` (copied once, not symlinked) |
 | `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
 | `~/.claude/keybindings.json` | `claude/keybindings.json` |
 | `~/.claude/hooks` | `claude/hooks/` (incl. bundled `sounds/`) |

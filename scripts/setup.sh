@@ -45,6 +45,15 @@ link() {
   info "linked $dest -> $src"
 }
 
+# clone a third-party checkout once; never touched again on re-runs.
+clone_once() {
+  local repo="$1" dest="$2" name="$3"
+  if [ ! -d "$dest" ]; then
+    info "installing $name..."
+    git clone --depth=1 "$repo" "$dest" || warn "clone of $name failed"
+  fi
+}
+
 # ---------------------------------------------------------------------------
 # 1. Xcode Command Line Tools (git, compilers)
 # ---------------------------------------------------------------------------
@@ -68,18 +77,34 @@ if [ -x /opt/homebrew/bin/brew ]; then
 elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
+# Homebrew 5+ prompts "Do you want to proceed? [y/n]" before every install; this script
+# has to run unattended, so opt out of ask-mode (and the post-install env hints).
+export HOMEBREW_NO_ASK=1
+export HOMEBREW_NO_ENV_HINTS=1
 
 # ---------------------------------------------------------------------------
 # 3. formulae & casks
+#    NOTE: no zsh here on purpose - macOS ships zsh 5.9 at /bin/zsh, which is what
+#    step 9 sets as the login shell. A Homebrew zsh would just shadow it.
 # ---------------------------------------------------------------------------
 info "installing brew formulae..."
-for f in git zsh neovim neofetch; do
+for f in git neovim; do
   brew list --formula "$f" >/dev/null 2>&1 || brew install "$f" || warn "brew install $f failed"
 done
 
 info "installing brew casks..."
 for c in ghostty iterm2; do
-  brew list --cask "$c" >/dev/null 2>&1 || brew install --cask "$c" || warn "brew install --cask $c failed"
+  brew list --cask "$c" >/dev/null 2>&1 && continue
+  # A cask install aborts if an app of that name is already in /Applications (e.g. ghostty
+  # installed by hand from the binary download). That abort is harmless - it leaves the
+  # existing app alone. Do NOT reach for --adopt to work around it: adoption shells out to
+  # xattr, which trips over quarantine attributes, and brew's rollback then DELETES the
+  # very app it was adopting.
+  if ! brew install --cask "$c"; then
+    warn "brew install --cask $c failed."
+    warn "    if that is because an app of the same name is already in /Applications,"
+    warn "    quit it and delete it, then re-run this script to let brew manage it."
+  fi
 done
 
 # ---------------------------------------------------------------------------
@@ -93,7 +118,7 @@ fi
 
 # ---------------------------------------------------------------------------
 # 5. dotfile symlinks
-#    (done before cloning p10k, so the custom dir is linked into the repo first)
+#    (done before cloning plugins/themes, so the custom dir points at the repo first)
 # ---------------------------------------------------------------------------
 info "linking dotfiles..."
 link "$DOTFILES/zsh/.zshrc"              "$HOME/.zshrc"
@@ -102,20 +127,31 @@ link "$DOTFILES/oh-my-zsh/custom"        "$HOME/.oh-my-zsh/custom"
 link "$DOTFILES/nvim"                    "$HOME/.config/nvim"
 link "$DOTFILES/ghostty/config"          "$HOME/.config/ghostty/config"
 link "$DOTFILES/ghostty/themes"          "$HOME/.config/ghostty/themes"
-link "$DOTFILES/neofetch/config.conf"    "$HOME/.config/neofetch/config.conf"
-link "$DOTFILES/claude/settings.json"    "$HOME/.claude/settings.json"
 link "$DOTFILES/claude/CLAUDE.md"        "$HOME/.claude/CLAUDE.md"
 link "$DOTFILES/claude/keybindings.json" "$HOME/.claude/keybindings.json"
 link "$DOTFILES/claude/hooks"            "$HOME/.claude/hooks"
 
-# ---------------------------------------------------------------------------
-# 6. powerlevel10k (into the now-symlinked custom dir; gitignored in the repo)
-# ---------------------------------------------------------------------------
-P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
-if [ ! -d "$P10K_DIR" ]; then
-  info "installing powerlevel10k..."
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+# ~/.claude/settings.json is deliberately NOT tracked or symlinked: it accumulates
+# per-machine plugin + permission state, and linking it would feed that straight into
+# the daily auto-sync commits. Seed it from the example once, then it's yours to edit.
+if [ ! -e "$HOME/.claude/settings.json" ]; then
+  mkdir -p "$HOME/.claude"
+  cp "$DOTFILES/claude/settings.example.json" "$HOME/.claude/settings.json"
+  info "seeded $HOME/.claude/settings.json from claude/settings.example.json"
 fi
+
+# ---------------------------------------------------------------------------
+# 6. oh-my-zsh plugins + powerlevel10k
+#    These land inside the repo via the symlinked custom dir, so all three are
+#    gitignored - they're third-party checkouts, not part of these dotfiles.
+# ---------------------------------------------------------------------------
+ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+clone_once https://github.com/zsh-users/zsh-autosuggestions.git \
+  "$ZSH_CUSTOM/plugins/zsh-autosuggestions" "zsh-autosuggestions"
+clone_once https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" "zsh-syntax-highlighting"
+clone_once https://github.com/romkatv/powerlevel10k.git \
+  "$ZSH_CUSTOM/themes/powerlevel10k" "powerlevel10k"
 
 # ---------------------------------------------------------------------------
 # 7. Claude Code
@@ -135,13 +171,18 @@ if [ -d "$DOTFILES/iterm2" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 9. default shell -> zsh
+# 9. default shell -> the zsh macOS ships
+#    Hardcoded to /bin/zsh rather than "$(command -v zsh)": PATH resolution would pick
+#    up a Homebrew zsh if one were ever installed. /bin/zsh is always present and is
+#    already listed in /etc/shells, so this needs no sudo.
 # ---------------------------------------------------------------------------
-ZSH_PATH="$(command -v zsh)"
-if [ "${SHELL:-}" != "$ZSH_PATH" ]; then
-  info "setting default shell to $ZSH_PATH..."
-  grep -qx "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
-  chsh -s "$ZSH_PATH" || warn "chsh failed; set your login shell to zsh manually"
+ZSH_PATH="/bin/zsh"
+# $SHELL is inherited from whatever launched this script and goes stale, so read the
+# login shell straight from the directory service.
+LOGIN_SHELL="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+if [ "$LOGIN_SHELL" != "$ZSH_PATH" ]; then
+  info "setting default shell to $ZSH_PATH (currently ${LOGIN_SHELL:-unknown})..."
+  chsh -s "$ZSH_PATH" || warn "chsh failed; set it by hand with: chsh -s $ZSH_PATH"
 fi
 
 # ---------------------------------------------------------------------------

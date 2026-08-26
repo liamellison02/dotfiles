@@ -6,6 +6,7 @@
 
 alias ali="nvim ~/.oh-my-zsh/custom/aliases.zsh"
 alias aliases="nvim ~/.oh-my-zsh/custom/aliases.zsh"
+alias nv="nvim"
 alias vsh="nvim ~/.zshrc"
 alias src="source ~/.zshrc"
 
