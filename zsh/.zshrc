@@ -89,3 +89,6 @@ export NVM_DIR="$HOME/.nvm"
 
 # keep here
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Added by cua-driver-rs installer — see https://github.com/trycua/cua
+export PATH="/Users/liamellison/.local/bin:$PATH"
