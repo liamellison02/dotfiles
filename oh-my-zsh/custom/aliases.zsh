@@ -58,6 +58,7 @@ alias gs="git status"
 alias gb="git branch"
 alias grs="git restore --staged"
 alias gca="git commit --amend --no-edit"
+alias sync="git add . && git commit 'sync' && git push"
 
 
 ################################
