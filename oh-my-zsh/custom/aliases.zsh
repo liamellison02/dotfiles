@@ -18,6 +18,7 @@ alias src="source ~/.zshrc"
 ################################
 
 alias cdg="cd ~/git/"
+alias cdb="cd ../"
 alias xx="cd ~/scratch/ && nvim"
 alias ml="cd ~/git/mlcpp/"
 alias dsa="cd ~/git/dsa-solutions/"
