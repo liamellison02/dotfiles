@@ -22,7 +22,7 @@ alias cdb="cd ../"
 alias xx="cd ~/scratch/ && nvim"
 alias ml="cd ~/git/mlcpp/"
 alias dsa="cd ~/git/dsa-solutions/"
-
+alias school="cd ~/git/school/"
 
 ################################
 #####                      #####

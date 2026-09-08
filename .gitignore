@@ -1,6 +1,6 @@
 .DS_Store
 
-# third-party checkouts cloned into the (symlinked) oh-my-zsh custom dir by setup.sh;
+# third-party checkouts cloned into the oh-my-zsh custom dir (ZSH_CUSTOM) by setup.sh;
 # they are not part of these dotfiles.
 oh-my-zsh/custom/themes/powerlevel10k/
 oh-my-zsh/custom/plugins/

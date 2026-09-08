@@ -118,12 +118,10 @@ fi
 
 # ---------------------------------------------------------------------------
 # 5. dotfile symlinks
-#    (done before cloning plugins/themes, so the custom dir points at the repo first)
 # ---------------------------------------------------------------------------
 info "linking dotfiles..."
 link "$DOTFILES/zsh/.zshrc"              "$HOME/.zshrc"
 link "$DOTFILES/zsh/.p10k.zsh"           "$HOME/.p10k.zsh"
-link "$DOTFILES/oh-my-zsh/custom"        "$HOME/.oh-my-zsh/custom"
 link "$DOTFILES/nvim"                    "$HOME/.config/nvim"
 link "$DOTFILES/ghostty/config"          "$HOME/.config/ghostty/config"
 link "$DOTFILES/ghostty/themes"          "$HOME/.config/ghostty/themes"
@@ -142,10 +140,14 @@ fi
 
 # ---------------------------------------------------------------------------
 # 6. oh-my-zsh plugins + powerlevel10k
-#    These land inside the repo via the symlinked custom dir, so all three are
-#    gitignored - they're third-party checkouts, not part of these dotfiles.
+#    ZSH_CUSTOM points straight at this repo (see zsh/.zshrc) rather than symlinking
+#    ~/.oh-my-zsh/custom - a symlink there hides oh-my-zsh's own tracked custom/example*
+#    files and breaks `omz update` ("beyond a symbolic link" / "Cannot autostash").
+#    These clones land inside the repo and are gitignored: third-party checkouts, not
+#    part of these dotfiles.
 # ---------------------------------------------------------------------------
-ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+ZSH_CUSTOM="$DOTFILES/oh-my-zsh/custom"
+mkdir -p "$ZSH_CUSTOM/plugins" "$ZSH_CUSTOM/themes"
 clone_once https://github.com/zsh-users/zsh-autosuggestions.git \
   "$ZSH_CUSTOM/plugins/zsh-autosuggestions" "zsh-autosuggestions"
 clone_once https://github.com/zsh-users/zsh-syntax-highlighting.git \

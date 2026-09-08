@@ -9,6 +9,10 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export ZSH="$HOME/.oh-my-zsh"
+# keep the custom dir in this repo instead of symlinking ~/.oh-my-zsh/custom:
+# a symlink there hides oh-my-zsh's own tracked custom/example* files, which makes
+# `omz update` fail with "is beyond a symbolic link / Cannot autostash".
+export ZSH_CUSTOM="${DOTFILES:-$HOME/git/dotfiles}/oh-my-zsh/custom"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 
