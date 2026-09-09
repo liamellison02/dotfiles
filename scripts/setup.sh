@@ -88,7 +88,18 @@ export HOMEBREW_NO_ENV_HINTS=1
 #    step 9 sets as the login shell. A Homebrew zsh would just shadow it.
 # ---------------------------------------------------------------------------
 info "installing brew formulae..."
-for f in git neovim; do
+# ripgrep and fd are hard requirements for the Neovim config, not nice-to-haves:
+# telescope/snacks pickers shell out to them, and todo-comments errors out with
+# "rg was not found on your path" without ripgrep. Note that an `rg` reported by
+# `command -v` in an interactive shell may only be a shell *function* shim - Neovim
+# spawns processes directly and needs the real binary, so install it here.
+# fzf and lazygit back LazyVim's pickers and its <leader>gg mapping, and
+# tree-sitter-cli is required to build parsers - note the CLI lives in the
+# `tree-sitter-cli` formula, NOT `tree-sitter`, which ships the library only.
+# go is needed because mason builds gopls/gofumpt/goimports with `go install`;
+# without it every launch logs "failed to install gopls".
+# `:checkhealth lazyvim` should report all-OK once these are present.
+for f in git neovim ripgrep fd fzf lazygit tree-sitter-cli go; do
   brew list --formula "$f" >/dev/null 2>&1 || brew install "$f" || warn "brew install $f failed"
 done
 
