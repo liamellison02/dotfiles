@@ -4,8 +4,8 @@
 #####                      #####
 ################################
 
-alias ali="nvim ~/.oh-my-zsh/custom/aliases.zsh"
-alias aliases="nvim ~/.oh-my-zsh/custom/aliases.zsh"
+alias ali="nvim ~/git/dotfiles/custom/aliases.zsh"
+alias aliases="nvim ~/git/dotfiles/custom/aliases.zsh"
 alias nv="nvim"
 alias vsh="nvim ~/.zshrc"
 alias src="source ~/.zshrc"
@@ -36,6 +36,7 @@ alias school="cd ~/git/school/"
 alias dsa="cd ~/git/dsa-solutions/"
 alias lc='sed -n 30,69p ~/git/dsa-solutions/templates/lc.cpp | pbcopy'
 alias cpp="clang++ -std=c++20 -O2"
+alias brain="cd ~/git/brain/"
 
 
 ################################
