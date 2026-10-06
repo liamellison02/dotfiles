@@ -4,8 +4,8 @@
 #####                      #####
 ################################
 
-alias ali="nvim ~/git/dotfiles/custom/aliases.zsh"
-alias aliases="nvim ~/git/dotfiles/custom/aliases.zsh"
+alias ali="nvim $ZSH_CUSTOM/aliases.zsh"
+alias aliases="nvim $ZSH_CUSTOM/aliases.zsh"
 alias nv="nvim"
 alias vsh="nvim ~/.zshrc"
 alias src="source ~/.zshrc"
