@@ -9,7 +9,7 @@ alias aliases="nvim $ZSH_CUSTOM/aliases.zsh"
 alias nv="nvim"
 alias vsh="nvim ~/.zshrc"
 alias src="source ~/.zshrc"
-
+alias c="claude --dangerously-skip-permissions"
 
 ################################
 #####                      #####
